@@ -25,6 +25,7 @@ type engine interface {
 	Winner() int
 	Seats() []ginrummy.Seat
 	SetConnected(userID int, connected bool)
+	RemovePlayer(userID int) (remaining int, removed bool)
 	Apply(userID int, a ginrummy.Action) ([]string, error)
 	RobotStep() (actorID int, actorName string, verbs []string, acted bool)
 	Snapshot() ([]byte, error)
@@ -227,6 +228,13 @@ func (rm *Room) sendTo(c *Client, payload []byte) {
 		}
 		rm.mu.Unlock()
 	}
+}
+
+// closeWithMessage tells every connected client the game has been closed so the
+// UI can return to the lobby (used when an invite decline leaves too few players).
+func (rm *Room) closeWithMessage(reason string) {
+	payload, _ := json.Marshal(map[string]interface{}{"type": "closed", "reason": reason})
+	rm.broadcast(payload)
 }
 
 func (rm *Room) broadcast(payload []byte) {

@@ -47,6 +47,14 @@ func FinishGame(gameID, winnerID int) error {
 	return err
 }
 
+// RemoveGamePlayer drops a player's seat row (e.g. when they decline an invite).
+func RemoveGamePlayer(gameID, userID int) error {
+	_, err := database.DB.Exec(
+		"DELETE FROM game_players WHERE game_id = ? AND user_id = ?", gameID, userID,
+	)
+	return err
+}
+
 // IsGamePlayer reports whether the user is/was seated in the game.
 func IsGamePlayer(gameID, userID int) (bool, error) {
 	var n int

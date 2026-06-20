@@ -44,6 +44,37 @@ func TestGinForceDrawWashesHand(t *testing.T) {
 	}
 }
 
+// TestGinRemovePlayerRedealsOrCancels confirms declining an invite re-deals to
+// the remaining players (switching hand size) and signals cancellation below 2.
+func TestGinRemovePlayerRedealsOrCancels(t *testing.T) {
+	players := []*Player{{UserID: 1, Username: "A"}, {UserID: 2, Username: "B"}, {UserID: 3, Username: "C"}}
+	g := NewGame(1, players, 100)
+	if g.HandSize != 7 {
+		t.Fatalf("3 players should deal 7, got %d", g.HandSize)
+	}
+	remaining, removed := g.RemovePlayer(2)
+	if !removed || remaining != 2 {
+		t.Fatalf("remove: removed=%v remaining=%d", removed, remaining)
+	}
+	if g.HandSize != 10 {
+		t.Fatalf("dropping to 2 players should switch to a 10-card deal, got %d", g.HandSize)
+	}
+	for _, p := range g.Players {
+		if p.UserID == 2 {
+			t.Fatal("declined player should be gone")
+		}
+		if len(p.Hand) != 10 {
+			t.Fatalf("re-deal should give 10 cards, got %d", len(p.Hand))
+		}
+	}
+	if g.Phase != PhaseDraw || g.Turn < 0 || g.Turn >= len(g.Players) {
+		t.Fatalf("bad post-redeal state: phase=%s turn=%d", g.Phase, g.Turn)
+	}
+	if remaining, removed = g.RemovePlayer(1); !removed || remaining != 1 {
+		t.Fatalf("dropping below 2 should report remaining=1 removed=true, got %d %v", remaining, removed)
+	}
+}
+
 // TestGinScoreAccumulatesAcrossHands confirms a new hand keeps the running score.
 func TestGinScoreAccumulatesAcrossHands(t *testing.T) {
 	players := []*Player{{UserID: 1, Username: "A"}, {UserID: 2, Username: "B"}}

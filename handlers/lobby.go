@@ -195,3 +195,46 @@ func (s *Server) InviteGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusCreated, map[string]interface{}{"game_id": gameID, "invited": len(invited)})
 }
+
+// DeclineInvite removes the caller from a game they were invited to. The hand is
+// re-dealt to whoever remains; if fewer than two are left, the game is cancelled
+// and the remaining players are sent back to the lobby.
+func (s *Server) DeclineInvite(w http.ResponseWriter, r *http.Request) {
+	user := UserFrom(r)
+	gameID, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid game id")
+		return
+	}
+	rm := s.Hub.Room(gameID)
+	if rm == nil {
+		writeError(w, http.StatusNotFound, "game not found or no longer live")
+		return
+	}
+	if ok, err := models.IsGamePlayer(gameID, user.ID); err != nil || !ok {
+		writeError(w, http.StatusForbidden, "you are not a player in this game")
+		return
+	}
+
+	rm.game.Lock()
+	remaining, removed := rm.game.RemovePlayer(user.ID)
+	rm.game.Unlock()
+	if !removed {
+		writeError(w, http.StatusConflict, "you are no longer in this game")
+		return
+	}
+	_ = models.RemoveGamePlayer(gameID, user.ID) // drop the seat row either way
+
+	if remaining < 2 {
+		rm.closeWithMessage(user.Username + " declined — not enough players, so the game was cancelled.")
+		s.Hub.Remove(gameID)
+		_ = models.DeleteGame(gameID)
+		writeJSON(w, http.StatusOK, map[string]string{"status": "cancelled"})
+		return
+	}
+	rm.logMove(user.ID, user.Username, "declined the invite and left")
+	rm.broadcastState()
+	rm.persist()
+	rm.AdvanceRobots() // the re-deal may hand the turn to a robot
+	writeJSON(w, http.StatusOK, map[string]string{"status": "left"})
+}

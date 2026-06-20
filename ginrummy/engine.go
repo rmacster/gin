@@ -50,6 +50,37 @@ func (g *Game) Seats() []Seat {
 	return seats
 }
 
+// RemovePlayer drops a seated player (e.g. an invitee who declined) and re-deals
+// a fresh hand to whoever remains — removing a hand mid-deal would corrupt the
+// deck. Returns the remaining player count and whether the user was seated; the
+// caller closes the game when fewer than 2 remain. Caller holds the lock.
+func (g *Game) RemovePlayer(userID int) (remaining int, removed bool) {
+	idx := -1
+	for i, p := range g.Players {
+		if p.UserID == userID {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		return len(g.Players), false
+	}
+	g.Players = append(g.Players[:idx], g.Players[idx+1:]...)
+	remaining = len(g.Players)
+	if remaining < 2 {
+		return remaining, true // not playable — caller cancels the game
+	}
+	if remaining >= 3 { // hand size follows the player count (NewGame's rule)
+		g.HandSize = 7
+	} else {
+		g.HandSize = 10
+	}
+	g.DealerIdx = 0
+	g.LastResults = nil
+	g.deal()
+	return remaining, true
+}
+
 // SetConnected updates a player's connection flag.
 func (g *Game) SetConnected(userID int, connected bool) {
 	for _, p := range g.Players {

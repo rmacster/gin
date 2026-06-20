@@ -64,6 +64,31 @@ func TestForceDrawWashesHand(t *testing.T) {
 	}
 }
 
+// TestRemovePlayerRedealsOrCancels confirms declining an invite re-deals to the
+// remaining players and signals cancellation when fewer than two are left.
+func TestRemovePlayerRedealsOrCancels(t *testing.T) {
+	players := []*gr.Player{{UserID: 1, Username: "A"}, {UserID: 2, Username: "B"}, {UserID: 3, Username: "C"}}
+	g := NewGame(1, players, 100)
+	remaining, removed := g.RemovePlayer(2)
+	if !removed || remaining != 2 {
+		t.Fatalf("remove: removed=%v remaining=%d", removed, remaining)
+	}
+	for _, p := range g.Players {
+		if p.UserID == 2 {
+			t.Fatal("declined player should be gone")
+		}
+		if len(p.Hand) != g.HandSize {
+			t.Fatalf("re-deal should give %d cards, got %d", g.HandSize, len(p.Hand))
+		}
+	}
+	if g.Phase != PhaseDraw {
+		t.Fatalf("phase=%s, want draw", g.Phase)
+	}
+	if remaining, removed = g.RemovePlayer(1); !removed || remaining != 1 {
+		t.Fatalf("dropping below 2 should report remaining=1 removed=true, got %d %v", remaining, removed)
+	}
+}
+
 func TestDealGivesSevenEach(t *testing.T) {
 	for n := 2; n <= 4; n++ {
 		players := make([]*gr.Player, n)

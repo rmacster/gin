@@ -40,6 +40,7 @@ func main() {
 	api.HandleFunc("/games", handlers.PlayerOnly(srv.ListGames)).Methods("GET")
 	api.HandleFunc("/games", handlers.PlayerOnly(srv.CreateGame)).Methods("POST")
 	api.HandleFunc("/games/{id}", handlers.PlayerOnly(srv.ClearGame)).Methods("DELETE")
+	api.HandleFunc("/games/{id}/decline", handlers.PlayerOnly(srv.DeclineInvite)).Methods("POST")
 
 	// Admin-only.
 	api.HandleFunc("/admin/pending", handlers.AdminOnly(handlers.AdminListPending)).Methods("GET")

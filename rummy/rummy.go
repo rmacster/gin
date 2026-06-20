@@ -115,6 +115,25 @@ func (g *RummyGame) deal() {
 	g.reshuffles = 0
 }
 
+// RemovePlayer drops a seated player (an invitee who declined) and re-deals a
+// fresh hand to whoever remains. Returns the remaining count and whether the
+// user was seated; the caller closes the game when fewer than 2 remain. Caller
+// holds the lock.
+func (g *RummyGame) RemovePlayer(userID int) (remaining int, removed bool) {
+	idx := g.playerIndex(userID)
+	if idx < 0 {
+		return len(g.Players), false
+	}
+	g.Players = append(g.Players[:idx], g.Players[idx+1:]...)
+	remaining = len(g.Players)
+	if remaining < 2 {
+		return remaining, true // not playable — caller cancels the game
+	}
+	g.DealerIdx = 0
+	g.deal()
+	return remaining, true
+}
+
 func (g *RummyGame) playerIndex(userID int) int {
 	for i, p := range g.Players {
 		if p.UserID == userID {

@@ -316,7 +316,12 @@ function showInvite(msg) {
   const row = el('div', 'modal-actions');
   const close = () => overlay.remove();
   row.append(btn('Join', '', () => { close(); openGame(msg.game_id); }));
-  row.append(btn('Cancel', 'ghost', close));
+  // Cancel actively leaves the table: the server re-deals to whoever remains
+  // (or cancels the game if too few are left).
+  row.append(btn('Decline', 'ghost', () => {
+    close();
+    api('POST', `/games/${msg.game_id}/decline`).catch(() => {});
+  }));
   box.append(row);
   overlay.append(box);
   // A new invite supersedes any older popup still on screen.
@@ -426,6 +431,12 @@ function onWsMessage(ev) {
   else if (msg.type === 'chat') { addChat(msg.from, msg.text, msg.ts); }
   else if (msg.type === 'log') { addLog(msg.actor_id, msg.actor, msg.verb, msg.ts); }
   else if (msg.type === 'error') { addChat('System', msg.error, nowTime()); }
+  else if (msg.type === 'closed') {
+    closeGame();
+    show('lobby-view');
+    loadLobby();
+    $('lobby-msg').textContent = msg.reason || 'The game was closed.';
+  }
 }
 
 // Original, geometric caricature per robot — an archetype + colour scheme that
