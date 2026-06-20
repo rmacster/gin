@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gin Rummy</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 id="app-title">🃏 Rummy</h1>
+    <div id="whoami" class="whoami hidden">
+      <span id="whoami-name"></span>
+      <button id="logout-btn" class="ghost">Log out</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- AUTH -->
+    <section id="auth-view" class="view card-panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="login">Log in</button>
+        <button class="tab" data-tab="register">Create account</button>
+      </div>
+
+      <form id="login-form" class="auth-form">
+        <input id="login-username" placeholder="Username" autocomplete="username" />
+        <input id="login-password" type="password" placeholder="Password" autocomplete="current-password" />
+        <button type="submit">Log in</button>
+      </form>
+
+      <form id="register-form" class="auth-form hidden">
+        <input id="reg-username" placeholder="Username" />
+        <input id="reg-email" placeholder="Email (optional)" />
+        <input id="reg-password" type="password" placeholder="Password" />
+        <button type="submit">Request account</button>
+        <p class="hint">New accounts must be approved by an administrator before first use.</p>
+      </form>
+
+      <p id="auth-msg" class="msg"></p>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="admin-view" class="view hidden">
+      <h2>Pending approvals</h2>
+      <div id="pending-list" class="list"></div>
+
+      <h2>Create user</h2>
+      <form id="admin-create-form" class="inline-form">
+        <input id="ac-username" placeholder="Username" />
+        <input id="ac-email" placeholder="Email" />
+        <input id="ac-password" type="password" placeholder="Password" />
+        <button type="submit">Create</button>
+      </form>
+
+      <h2>All users</h2>
+      <div id="users-list" class="list"></div>
+    </section>
+
+    <!-- LOBBY -->
+    <section id="lobby-view" class="view hidden">
+      <div class="lobby-grid">
+        <div class="card-panel">
+          <h2>New game</h2>
+          <label>Game
+            <select id="game-type">
+              <option value="gin">Gin Rummy</option>
+              <option value="rummy">Standard Rummy</option>
+            </select>
+          </label>
+          <p id="game-hint" class="hint">Gin Rummy: 2–3 players. Knock or go gin to score.</p>
+          <div id="opponent-list" class="checks"></div>
+          <label>Robots
+            <select id="robot-count">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </label>
+          <label>Play to
+            <select id="target-score">
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+              <option value="150">150</option>
+            </select>
+          </label>
+          <button id="create-game-btn">Deal me in</button>
+        </div>
+
+        <div class="card-panel">
+          <h2>Your groups</h2>
+          <div id="groups-list" class="list"></div>
+          <form id="group-form" class="inline-form">
+            <input id="group-name" placeholder="New group name" />
+            <button type="submit">Create group</button>
+          </form>
+        </div>
+
+        <div class="card-panel">
+          <h2>Your games</h2>
+          <div id="games-list" class="list"></div>
+        </div>
+      </div>
+      <p id="lobby-msg" class="msg"></p>
+    </section>
+
+    <!-- GAME -->
+    <section id="game-view" class="view hidden">
+      <div class="game-top">
+        <button id="leave-game" class="ghost">← Lobby</button>
+        <span id="game-status" class="game-status"></span>
+      </div>
+
+      <div class="table-area">
+        <div id="opponents" class="player-column"></div>
+
+        <div class="table-center">
+          <div class="pile">
+            <div class="card-back" id="stock-pile"></div>
+            <span id="stock-count" class="pile-label"></span>
+          </div>
+          <div class="pile">
+            <div id="discard-pile" class="card-slot"></div>
+            <span class="pile-label">Discard</span>
+          </div>
+        </div>
+
+        <aside id="move-log" class="move-log">
+          <div class="log-head">
+            <h3>Move log</h3>
+            <button id="clear-log" class="small ghost" type="button">Clear</button>
+          </div>
+          <div id="log-entries" class="log-entries"></div>
+        </aside>
+      </div>
+
+      <div id="table-melds" class="table-melds hidden"></div>
+
+      <div id="results-panel" class="results hidden"></div>
+
+      <div class="you">
+        <div class="you-meta">
+          <span id="you-info"></span>
+          <span class="you-controls">
+            <button id="sort-btn" class="small ghost" type="button">Sort: High→Low</button>
+            <span id="deadwood-info" class="deadwood"></span>
+          </span>
+        </div>
+        <div id="your-hand" class="hand"></div>
+        <div id="actions" class="actions"></div>
+        <div id="draw-offer" class="actions draw-offer"></div>
+        <p class="hint kbd-legend">Rotate / ← → : move cursor · Push / Enter : select</p>
+      </div>
+
+      <div class="chat">
+        <div id="chat-log" class="chat-log"></div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-input" placeholder="Say something…" maxlength="500" />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

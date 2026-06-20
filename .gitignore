@@ -1,0 +1,16 @@
+# Compiled server binary and deploy build artifact
+/gin
+/ginrummy-linux
+*.exe
+
+# SQLite database — user accounts, password hashes, saved game state. Never commit.
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
