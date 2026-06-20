@@ -127,7 +127,7 @@ async function loadAdmin() {
     pending.forEach(u => {
       const row = el('div', 'list-item');
       row.innerHTML = `<span><b>${esc(u.username)}</b> <span class="meta">${esc(u.email || '')}</span></span>`;
-      const actions = el('div');
+      const actions = el('div', 'row-actions');
       actions.append(
         btn('Approve', 'small', async () => { await api('POST', `/admin/users/${u.id}/approve`); loadAdmin(); }),
         btn('Reject', 'small danger', async () => { await api('POST', `/admin/users/${u.id}/reject`); loadAdmin(); }),
@@ -188,7 +188,7 @@ async function loadLobby() {
       const names = (g.members || []).map(m => esc(m.username)).join(', ');
       const row = el('div', 'list-item');
       row.innerHTML = `<span><b>${esc(g.name)}</b><br><span class="meta">${names}</span></span>`;
-      const actions = el('div');
+      const actions = el('div', 'row-actions');
       actions.append(btn('Invite', 'small', () => inviteGroup(g)));
       actions.append(btn('Add', 'small', async () => {
         const name = prompt('Username to add to ' + g.name + ':');
@@ -220,7 +220,7 @@ async function loadLobby() {
       const typeLabel = g.game_type === 'rummy' ? 'Rummy' : 'Gin';
       const live = resumable ? ' <span class="badge live">live</span>' : '';
       row.innerHTML = `<span>Game #${g.id} <span class="badge">${typeLabel}</span> <span class="meta">${status}</span>${live}</span>`;
-      const actions = el('div');
+      const actions = el('div', 'row-actions');
       if (resumable) actions.append(btn('Open', 'small', () => openGame(g.id)));
       actions.append(btn('Clear', 'small ghost', async () => {
         if (!finished && !confirm(`Game #${g.id} may still be in progress. Clear it for everyone?`)) return;
