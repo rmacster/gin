@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="felt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0e7d44"/>
+      <stop offset="1" stop-color="#074d2a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Felt background -->
+  <rect x="0" y="0" width="32" height="32" rx="7" fill="url(#felt)"/>
+  <rect x="1" y="1" width="30" height="30" rx="6" fill="none" stroke="#e8c66b" stroke-width="1" opacity="0.55"/>
+
+  <!-- Back card (spade), fanned left -->
+  <g transform="translate(13 17.5) rotate(-15)">
+    <rect x="-6.5" y="-9" width="13" height="18" rx="2" fill="#f7f4ea" stroke="#1a1a1a" stroke-width="0.6"/>
+    <path d="M 0 -5 C 4.2 -1 6 1.8 2.8 3.8 C 1.4 4.7 0.4 4 0 3.1 C -0.4 4 -1.4 4.7 -2.8 3.8 C -6 1.8 -4.2 -1 0 -5 Z M -1.6 6 L 1.6 6 L 0 3 Z" fill="#1a1a1a"/>
+  </g>
+
+  <!-- Front card (heart), fanned right -->
+  <g transform="translate(19 16) rotate(11)">
+    <rect x="-6.5" y="-9" width="13" height="18" rx="2" fill="#ffffff" stroke="#c9c2ad" stroke-width="0.6"/>
+    <path d="M 0 4.2 C -5.4 -1.2 -4.2 -5.4 0 -2.2 C 4.2 -5.4 5.4 -1.2 0 4.2 Z" fill="#c62828"/>
+  </g>
+</svg>
