@@ -39,7 +39,10 @@ const views = ['auth-view', 'admin-view', 'lobby-view', 'game-view'];
 function show(id) {
   views.forEach(v => document.getElementById(v).classList.toggle('hidden', v !== id));
   // Outside a game, show the neutral app title; renderGame sets the variant name.
-  if (id !== 'game-view') { const t = document.getElementById('app-title'); if (t) t.textContent = '🃏 Rummy'; }
+  if (id !== 'game-view') {
+    const t = document.getElementById('app-title'); if (t) t.textContent = '🃏 Rummy';
+    document.title = 'Rummy';
+  }
 }
 function $(id) { return document.getElementById(id); }
 
@@ -833,6 +836,7 @@ function renderGame(s) {
   const phaseName = { draw: 'Draw', discard: 'Discard', play: 'Play', roundEnd: 'Hand over', gameOver: 'Game over' }[s.phase] || s.phase;
   const typeName = s.game_type === 'rummy' ? 'Rummy' : 'Gin';
   $('app-title').textContent = s.game_type === 'rummy' ? '🃏 Standard Rummy' : '🃏 Gin Rummy';
+  document.title = s.game_type === 'rummy' ? 'Standard Rummy' : 'Gin Rummy';
   $('game-status').textContent = `Game #${s.game_id} · ${typeName} · Hand ${s.hand_number} · ${phaseName} · to ${s.target_score}`;
 
   renderRoster(s);
