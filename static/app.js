@@ -1,5 +1,15 @@
 'use strict';
 
+// ---- Mount prefix ---------------------------------------------------------
+// The app may be served at the site root (standalone) or under /gin (behind
+// the richymac.com reverse proxy). Derive the prefix from this script's own
+// URL so every API/WebSocket/asset path resolves correctly in both cases.
+const BASE = (() => {
+  const src = (document.currentScript && document.currentScript.src) || '';
+  if (!src) return '';
+  return new URL(src).pathname.replace(/\/app\.js$/, ''); // "/gin" or ""
+})();
+
 // ---- Auth state -----------------------------------------------------------
 const Auth = {
   username: localStorage.getItem('gin_user') || '',
@@ -27,7 +37,7 @@ async function api(method, path, body) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
   }
-  const res = await fetch('/api' + path, opts);
+  const res = await fetch(BASE + '/api' + path, opts);
   let data = null;
   try { data = await res.json(); } catch (e) { /* no body */ }
   if (!res.ok) throw new Error((data && data.error) || res.statusText);
@@ -104,7 +114,7 @@ $('register-form').addEventListener('submit', async e => {
     password: $('reg-password').value,
   };
   try {
-    const r = await fetch('/api/register', {
+    const r = await fetch(BASE + '/api/register', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     });
     const data = await r.json();
@@ -290,7 +300,7 @@ function connectLobby() {
   if (lobbyWs && (lobbyWs.readyState === 0 || lobbyWs.readyState === 1)) return; // already connecting/open
   if (!Auth.has() || (ME && ME.role === 'admin')) return;
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const url = `${proto}://${location.host}/lobby` +
+  const url = `${proto}://${location.host}${BASE}/lobby` +
     `?u=${encodeURIComponent(Auth.username)}&p=${encodeURIComponent(Auth.password)}`;
   lobbyWs = new WebSocket(url);
   lobbyWs.onmessage = ev => {
@@ -411,7 +421,7 @@ function openGame(gameID) {
   $('log-entries').innerHTML = '';
   show('game-view');
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const url = `${proto}://${location.host}/ws?game=${gameID}` +
+  const url = `${proto}://${location.host}${BASE}/ws?game=${gameID}` +
     `&u=${encodeURIComponent(Auth.username)}&p=${encodeURIComponent(Auth.password)}`;
   ws = new WebSocket(url);
   ws.onmessage = onWsMessage;
